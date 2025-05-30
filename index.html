@@ -385,8 +385,21 @@
             initializeCanvas() {
                 const img = document.getElementById('demoImage');
                 const updateCanvas = () => {
-                    this.canvas.width = img.offsetWidth;
-                    this.canvas.height = img.offsetHeight;
+                    // Get the actual rendered dimensions of the image
+                    const rect = img.getBoundingClientRect();
+                    const container = img.parentElement;
+                    const containerRect = container.getBoundingClientRect();
+                    
+                    // Set canvas dimensions to match the image
+                    this.canvas.width = img.naturalWidth || img.width;
+                    this.canvas.height = img.naturalHeight || img.height;
+                    
+                    // Position canvas to match the image exactly
+                    this.canvas.style.width = rect.width + 'px';
+                    this.canvas.style.height = rect.height + 'px';
+                    this.canvas.style.left = (rect.left - containerRect.left) + 'px';
+                    this.canvas.style.top = (rect.top - containerRect.top) + 'px';
+                    
                     this.generateParticles();
                 };
                 
@@ -431,7 +444,8 @@
                 };
                 
                 img.src = images[imageType];
-                setTimeout(() => this.initializeCanvas(), 100);
+                // Wait for image to load before reinitializing canvas
+                img.onload = () => this.initializeCanvas();
             }
 
             generateParticles() {
